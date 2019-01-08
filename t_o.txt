@@ -1,0 +1,224 @@
+Afisare
+
+<?php
+$connection = OCILogon("student","student","XE");
+$stmt = OCIParse($connection, "SELECT * FROM EVIDENTA_CARTI");
+OCIExecute($stmt);
+	echo "<table border='4' align='center'>";
+	echo "<tr>";
+	echo "<th>NR_crt</th>";
+	echo "<th>Carte</th>";
+	echo "<th>Autor</th>";
+	echo "<th>Editura</th>";
+	echo "<th>Nr_exemplare</th>";
+	echo "<th>An_Aparitie</th>";
+	echo "<th>Cod_ISBN</th>";
+	echo "</tr>";
+	while(OCIFetch($stmt)){
+		$nr_crt = OCIResult($stmt,"NR_CRT");
+		$carte = OCIResult($stmt,"TITLU_CARTE");
+		$autor = OCIResult($stmt,"AUTOR_CARTE");
+		$editura = OCIResult($stmt,"EDITURA");
+		$nr_exemplare = OCIResult($stmt,"NR_EXEMPLARE");
+		$an = OCIResult($stmt,"ANUL_APARITIEI");
+		$cod = OCIResult($stmt,"COD_ISBN");
+		echo "<tr>";
+		echo "<td>$nr_crt</td>";
+		echo "<td>$carte</td>";
+		echo "<td>$autor</td>";
+		echo "<td>$editura</td>";
+		echo "<td>$nr_exemplare</td>";
+		echo "<td>$an</td>";
+		echo "<td>$cod</td>";
+		echo "</tr>";
+	}
+	echo "</table>";
+	OCIFreeStatement($stmt);
+	OCILogoff($connection);
+?>
+
+
+
+
+Inserare
+
+HTML
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<body>
+<form action="http://localhost/inserare.php"method="POST">
+NR_CRT:<input type="text" name="nr"><br>
+TITLU_CARTE:<input type="text" name="titlu"><br>
+AUTOR_CARTE:<input type="text" name="autor"><br>
+EDITURA:<input type="text" name="edit"><br>
+NR_EXEMPLARE:<input type="text" name="nr_ex"><br>
+ANUL_APARITIEI:<input type="text" name="an"><br>
+COD_ISBN:<input type="text" name="isbn"><br>
+<input type="submit">
+</form>
+</body>
+</html>
+
+
+PHP
+
+
+<?php
+
+	echo $NR_CRT= $_POST['nr'];
+	echo $TITLU_CARTE= $_POST['titlu'];
+	echo $AUTOR_CARTE= $_POST['autor'];
+	echo $EDITURA= $_POST['edit'];
+	echo $NR_EXEMPLARE= $_POST['nr_ex'];
+	echo $ANUL_APARITIEI= $_POST['an'];
+	echo $COD_ISBN= $_POST['isbn'];
+	$connection=OCILogon("student", "student","XE");
+	$stmt2=OCIParse($connection, "select count(*) from EVIDENTA_CARTI where titlu_carte='$TITLU_CARTE'");
+	OCIExecute($stmt2);
+	$row=OCI_Fetch_row($stmt2);
+	if($row[0]==0)
+	{ 
+	$stmt=OCIParse($connection,"INSERT INTO EVIDENTA_CARTI VALUES($NR_CRT,'$TITLU_CARTE','$AUTOR_CARTE','$EDITURA',$NR_EXEMPLARE,$ANUL_APARITIEI,$COD_ISBN)");
+	OCIExecute($stmt);
+	OCIFreeStatement($stmt);
+	header("location:afisare.php");	
+	}
+	else echo "Exista deja";
+	OCIFreeStatement($stmt2);
+	OCILogoff($connection);
+	
+?>
+
+
+
+
+
+Stergere
+
+
+PHP
+
+
+<?php 
+$nume = $_POST["titlu"]; 
+$connection = OCILogon("student", "student", "XE");
+$stmt= OCIParse($connection, "select * from evidenta_carti where titlu_carte='$nume'");
+OCIExecute($stmt);
+if(OCIFetch($stmt))
+{
+	$stmt2 = OCIParse($connection, "delete from evidenta_carti where titlu_carte='$nume'");
+	OCIExecute($stmt2);
+	OCIFreeStatement($stmt2);
+	header("Location: afisare.php");
+}
+else
+{
+	 echo "Cartea nu exista";
+}
+OCIFreeStatement($stmt);
+OCILogoff($connection);
+?>
+
+
+
+
+HTML
+
+
+
+<html>
+<head>
+<title>Untitled Document</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</head>
+
+<body>
+<form action="http://localhost/stergere.php" method="POST">
+TITLU: <input type="text" name="titlu"><br>
+<input type="submit">
+</form>
+</body>
+</html>
+
+
+
+
+Imprumut
+
+
+PHP
+
+
+<?php 
+$nume = $_POST["titlu"]; 
+$connection = OCILogon("student", "student", "XE");
+$stmt= OCIParse($connection, "select nr_exemple from evidenta_carti where titlu_carte ='$nume'");
+OCIExecute($stmt);
+$row = OCI_Fetch_Row($stmt);
+if($row[0]>0)
+{
+	$stmt1 = OCIParse($connection, "UPDATE evidenta_carti set nr_exemple = nr_exemple-1 where titlu_carte = '$nume'");
+	OCIExecute($stmt1);
+	OCIFreestatement($stmt1);
+	header("Location: afisare.php");
+}
+else
+{
+	echo "Cartea nu exista";
+}
+OCIFreeStatement($stmt);
+OCILogoff($connection);
+?>
+
+
+
+
+HTML
+
+
+
+<html>
+<head>
+<title>Untitled Document</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</head>
+
+<body>
+<form action="http://localhost/imprumut.php" method="POST">
+TITLU: <input type="text" name="titlu"><br>
+<input type="submit">
+</form>
+</body>
+</html>
+
+
+
+
+
+Meniu 
+
+
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+<head>
+<title>MENIU</title>
+
+</head>
+
+<body>
+<a href="http://localhost/afisare.php">Afisare carti</a><br>
+<a href="http://localhost/inserare.html">Inserare</a><br>
+<a href="http://localhost/stergere.html">Stergere</a><br>
+<a href="http://localhost/imprumut.html">Imprumut</a>
+
+</body>
+</html>
+
+
+
+
+
+

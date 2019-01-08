@@ -1,0 +1,167 @@
+*** AFISARE
+<?php
+$connection = OCILogon("student","student","XE");
+$stmt = OCIParse($connection, "SELECT * FROM evidenta_carti");
+OCIExecute($stmt);
+	echo "<table border='4' align='center'>";
+	echo "<tr>";
+	echo "<th>COD_ISBM</th>";
+	echo "<th>Carte</th>";
+	echo "<th>Autor</th>";
+	echo "<th>Editura</th>";
+	echo "<th>Nr_exemplare</th>";
+	echo "<th>An_Aparitie</th>";
+	echo "</tr>";
+	while(OCIFetch($stmt)){
+		$cod = OCIResult($stmt,"COD_ISBM");
+		$carte = OCIResult($stmt,"TITLU");
+		$autor = OCIResult($stmt,"AUTOR");
+		$editura = OCIResult($stmt,"EDITURA");
+		$exemplare = OCIResult($stmt,"NR_EXEMPLARE");
+		$an = OCIResult($stmt,"AN_APARITIE");
+		
+		echo "<tr>";
+		echo "<td>$cod</td>";
+		echo "<td>$carte</td>";
+		echo "<td>$autor</td>";
+		echo "<td>$editura</td>";
+		echo "<td>$exemplare</td>";
+		echo "<td>$an</td>";
+		
+		echo "</tr>";
+	}
+	echo "</table>";
+	OCIFreeStatement($stmt);
+	OCILogoff($connection);
+?>
+
+*** INSERARE
+<?php
+
+    echo $COD_ISBM= $_POST['isbm'];
+	echo $TITLU= $_POST['titlu'];
+	echo $AUTOR= $_POST['autor'];
+	echo $EDITURA= $_POST['edit'];
+	echo $NR_EXEMPLARE= $_POST['nr_ex'];
+	echo $AN_APARITIE= $_POST['an'];
+	$connection=OCILogon("student", "student","XE");
+	$stmt2=OCIParse($connection, "select count(*)from evidenta_carti where titlu='$TITLU'");
+	OCIExecute($stmt2);
+	$row=OCI_Fetch_row($stmt2);
+	if($row[0]==0){ 
+	$stmt=OCIParse($connection,"INSERT INTO EVIDENTA_CARTI VALUES($COD_ISBM,'$TITLU','$AUTOR','$EDITURA',$NR_EXEMPLARE,$AN_APARITIE)");
+	OCIExecute($stmt);
+	OCIFreeStatement($stmt);	
+	}
+	else echo "Exista deja";
+	OCIFreeStatement($stmt2);
+	OCILogoff($connection);
+	
+?>
+
+
+*** IMPRUMUT
+<?php 
+$nume = $_POST["titlu"]; 
+$connection = OCILogon("student", "student", "XE");
+$stmt= OCIParse($connection, "select nr_exemplare from evidenta_carti where titlu ='$nume'");
+OCIExecute($stmt);
+$row = OCI_Fetch_Row($stmt);
+if($row[0]>0)
+{
+	$stmt1 = OCIParse($connection, "UPDATE evidenta_carti set nr_exemplare = nr_exemplare-1 where titlu= '$nume'");
+	OCIExecute($stmt1);
+}
+else
+{
+	echo "Cartea nu exista";
+}
+OCIFreeStatement($stmt);
+OCILogoff($connection);
+?>
+
+
+*** STERGERE
+<?php 
+$nume = $_POST["titlu"]; 
+$connection = OCILogon("student", "student", "XE");
+$stmt= OCIParse($connection, "select * from evidenta_carti where titlu='$nume'");
+OCIExecute($stmt);
+if(OCIFetch($stmt))
+{
+	$stmt2 = OCIParse($connection, "delete from evidenta_carti where titlu='$nume'");
+	OCIExecute($stmt2);
+	OCIFreeStatement($stmt2);
+	header("Location: afisare.php");
+}
+else
+{
+	 echo "Cartea nu exista";
+}
+OCIFreeStatement($stmt);
+OCILogoff($connection);
+?>
+
+
+*** MENIU
+
+<html>
+<head>
+<title>MENIU</title>
+
+</head>
+
+<body>
+<a href="http://localhost/afisare.php">Afisare carti</a><br>
+<a href="http://localhost/inserare.htm">Inserare</a><br>
+<a href="http://localhost/stergere.htm">Stergere</a><br>
+<a href="http://localhost/update.htm">Imprumut</a>
+</body>
+</html>
+
+
+*** INSERARE
+<html>
+<body>
+<form action="http://localhost/inserare.php"method="POST">
+COD_ISBM:<input type="text" name="isbm"><br>
+TITLU_CARTE:<input type="text" name="titlu"><br>
+AUTOR_CARTE:<input type="text" name="autor"><br>
+EDITURA:<input type="text" name="edit"><br>
+NR_EXEMPLARE:<input type="text" name="nr_ex"><br>
+ANUL_APARITIEI:<input type="text" name="an"><br>
+<input type="submit">
+</form>
+</body>
+</html>
+
+*** UPDATE
+<html>
+<head>
+<title>Untitled Document</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</head>
+
+<body>
+<form action="http://localhost/imprumut.php" method="POST">
+TITLU: <input type="text" name="titlu"><br>
+<input type="submit">
+</form>
+</body>
+</html>
+
+
+*** STERGERE
+<html>
+<head>
+<title>Untitled Document</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</head>
+
+<body>
+<form action="http://localhost/stergere.php" method="POST">
+TITLU: <input type="text" name="titlu"><br>
+<input type="submit">
+</form>
+</body>
+</html>

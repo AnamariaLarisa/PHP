@@ -1,0 +1,175 @@
+*** INSERT
+<?php
+$conn=OCI_connect("student","student","XE") or die ("Er");
+$nr=$_POST['nr']; 
+$titlu=$_POST['titlu']; 
+$autor=$_POST['autor']; 
+$exemplare=$_POST['exemplare']; 
+$aparitie=$_POST['aparitie'];
+$isbn=$_POST['isbn'];
+$stmt= OCI_parse($conn, "insert into EVIDENTA_CRT (NR_CRT, TITLU_CARTE, AUTOR_CARTE, NR_EXEMPLARE, ANUL_APARITIEI, COD_ISBN) values($nr, '$titlu', '$autor', $exemplare, $aparitie, '$isbn')");
+OCI_execute($stmt);
+?>
+
+*** EX
+<html>
+<head>
+<title>Untitled Document</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</head>
+
+<body>
+<?php
+$connection=OCILogon("student","student","orcl");
+$stmt=OCIParse($connection,"SELECT * FROM angajati "):
+ociexecute($stmt);
+echo "<table border='4' align='center'>";
+echo"<tr>";
+echo"<th>ID</th>";
+echo"<th>NUME</th>";
+echo"<th>SALAR</th>";
+echo"</tr>";
+while(OCIFetch($stmt))
+{
+$id=OCIResult($stmt,"ID");
+$nume=OCIResult($stmt,"NUME");
+$nume=OCIResult($stmt,"SALAR");
+print("<tr>"."<td>$id</td>"."<td>$nume</td>"."<td>$salar</td>"."</tr>");
+$stmt1=OCIParse($connection,"insert into evidenta values($id,'$nume',$salar)");
+OCIExecue($stmt1);
+OCIFreeStatement($stmt);
+OCIFreeStatement($stmt);
+OCILogoff($connection);
+?>
+</body>
+</html>
+
+
+*** imprumut
+<?php
+$conn=OCI_connect("student","student","XE") or die ("Er");
+$titlu=$_POST['titlu']; 
+$stmt= OCI_parse($conn, "update EVIDENTA_CRT set NR_EXEMPLARE = NR_EXEMPLARE-1 where TITLU_CARTE='$titlu'");
+OCI_execute($stmt);
+?>
+
+*** delete
+<?php
+$conn=OCI_connect("student","student","XE") or die ("Er");
+$titlu=$_POST['titlu']; 
+$stmt= OCI_parse($conn, "DELETE FROM EVIDENTA_CRT WHERE TITLU_CARTE='$titlu'");
+OCI_execute($stmt);
+?>
+
+*** frame_a
+<?php
+$conn=OCI_connect("student","student","XE") or die ("Er");
+$stmt = OCI_parse($conn, "SELECT * FROM EVIDENTA_CRT");
+OCI_execute($stmt);
+echo"<table border ='4' align='center'>";
+echo"<tr>";
+echo"<th>NR_CRT</th>";
+echo"<th>TITLU_CARTE</th>";
+echo"<th>AUTOR_CARTE</th>";
+echo"<th>NR_EXEMPLARE</th>";
+echo"<th>ANUL_APARITIEI</th>";
+echo"<th>COD_ISBN</th>";
+echo"</tr>";
+while(OCI_fetch($stmt))
+{
+	$nr_crt= OCI_result($stmt, 'NR_CRT');
+	$titlu_carte= OCI_result($stmt, 'TITLU_CARTE');
+	$autor_carte= OCI_result($stmt, 'AUTOR_CARTE');
+	$nr_exemplare= OCI_result($stmt, 'NR_EXEMPLARE');
+	$anul_aparitiei= OCI_result($stmt, 'ANUL_APARITIEI');
+	$cod_isbn= OCI_result($stmt, 'COD_ISBN');
+	print(
+	"<td>$nr_crt</td>".
+	"<td>$titlu_carte</td>".
+	"<td>$autor_carte</td>".
+	"<td>$nr_exemplare</td>".
+	"<td>$anul_aparitiei</td>".
+	"<td>$cod_isbn</td></tr>");
+}
+
+echo"</table>";
+?>
+
+***meniu
+<!DOCTYPE html>
+<html>
+
+<frameset cols="45%,15%, 15% ,25%">
+  <frame src="frame_a.php">
+  <frame src="frame_b.html">
+  <frame src="frame_c.html">
+  <frame src="frame_d.html">
+</frameset><noframes></noframes>
+
+</html>
+
+*** frame_b
+<!DOCTYPE html>
+<html>
+<body>
+
+<h2>Inserare</h2>
+
+<form action="/insert.php" method="POST">
+  nr_crt:<br>
+  <input type="integer" name="nr" >
+  <br>
+  titlu:<br>
+  <input type="" name="titlu">
+  <br>
+  autor:<br>
+  <input type="text" name="autor">
+  <br>
+  exemplare:<br>
+  <input type="text" name="exemplare">
+  <br>
+  aparitie:<br>
+  <input type="integer" name="aparitie">
+  <br>
+  isbn:<br>
+  <input type="text" name="isbn">
+  <br><br>
+  <input type="submit" value="Submit">
+</form> 
+
+</body>
+</html>
+
+*** frame_c
+<!DOCTYPE html>
+<html>
+<body>
+
+<h2>Stergere</h2>
+
+<form action="/delete.php" method="POST">
+  titlu:<br>
+  <input type="" name="titlu">
+  <br><br>
+  <input type="submit" value="Submit">
+</form> 
+
+</body>
+</html>
+
+*** frame_d
+<!DOCTYPE html>
+<html>
+<body>
+
+<h2>Imprumut</h2>
+
+<form action="/imprumut.php" method="POST">
+  titlu:<br>
+  <input type="" name="titlu">
+  <br><br>
+  <input type="submit" value="Submit">
+</form> 
+
+</body>
+</html>

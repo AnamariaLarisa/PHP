@@ -1,0 +1,145 @@
+﻿*** AFISARE:
+<?php
+    $link = mysqli_connect("localhost", "root");
+    
+if(!$link)
+        
+die("Conexiune nereusita!");
+    
+$db_selected = mysqli_select_db($link, "facultate");
+    
+if(!$db_selected)
+        
+die("Baza de date nu exista!");
+    
+echo '<html>';
+    
+echo '<head> <title> Afisare studenti </title> </head>';
+    
+$comanda = "SELECT * FROM studenti_AC";
+    
+$result = mysqli_query($link, $comanda);
+    
+echo 
+    '
+    <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
+    <table id = "afisare">
+        <tr align = "center">
+            <td> Marca </td>
+            <td> Nume </td>
+            <td> Prenume </td>
+            <td> An Studiu </td>
+        </tr>
+    ';
+    while($row = mysqli_fetch_row($result))
+    {
+            echo '<tr align = "center">';
+            foreach($row as $value)
+                echo '<td>'.$value.'</td>';
+            echo '</tr>';
+    }
+    echo '</table>';
+    echo 
+    '
+        <script type="text/javascript" src="goback.js"></script>
+        <button onclick="goBack()">Go Back</button>
+    ';
+    echo '</html>';
+?>
+
+*** INSERARE STUDENT
+<?php
+    $link = mysqli_connect("localhost", "root");
+    if(!$link)
+        die("Conexiune nereusita!");
+    $db_selected = mysqli_select_db($link, "facultate");
+    if(!$db_selected)
+        die("Baza de date nu exista!");
+    $marca = $_POST['marca_form'];
+    $nume = $_POST['nume_form'];
+    $prenume = $_POST['prenume_form'];
+    $an = $_POST['an_form'];
+    $comanda_select = "SELECT * FROM studenti_AC WHERE marca = '$marca'";
+    $comanda_insert = "INSERT INTO studenti_AC VALUES('$marca', '$nume', '$prenume', '$an')";
+    if($marca == NULL || $nume == NULL || $prenume == NULL || $an == NULL)
+        die("Nu ati introdus toate datele necesare!");
+    else
+    {
+        $result = mysqli_query($link, $comanda_select);
+        if(mysqli_num_rows($result) == 0)
+        {
+            mysqli_query($link, $comanda_insert);
+            include 'afisare.php';
+        }
+        else 
+            die("Studentul exista deja!");
+    }
+?>
+
+*** INDEX
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Test Micsa</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+    </head>
+    <body>
+        <ul style="list-style-type:disc">
+            <li>
+                <a href = "afisare.php"> Afisarea tuturor studentilor </a>
+            </li>
+            <li>
+                <a href = "inserare.html"> Inserarea unui student nou</a>
+            </li>
+        </ul>
+    </body>
+</html>
+
+*** INSERARE
+<html>
+    <head>
+        <title> Inserare student </title>
+    </head>
+    <body>
+        <form method = "POST" action = "inserare_student.php">
+            <table id = "formular">
+                    <tr>
+                        <td>Marca </td>
+                        <td>
+                            <input type = "text" name = "marca_form">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Nume </td>
+                        <td><input type = "text" name = "nume_form"> </td>
+                    </tr>
+                    <tr>
+                        <td>Prenume </td>
+                        <td>
+                            <input type = "text" name = "prenume_form">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>An</td>
+                        <td>
+                            <select name = "an_form">
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan=”2”>
+                            <input type="SUBMIT" value="Add">
+                            <input type="RESET" value="Reset">
+                        </td>
+                    </tr>
+            </table>
+        </form>
+        <script type="text/javascript" src="goback.js"></script>
+        <button onclick="goBack()">Go Back</button>
+    </body>
+</html>
